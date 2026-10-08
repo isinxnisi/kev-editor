@@ -204,6 +204,7 @@ function bindEditor() {
     $$(".tab").forEach((x) => x.setAttribute("aria-selected", String(x === t)));
     $("#tab-view").hidden = t.dataset.tab !== "view";
     $("#tab-json").hidden = t.dataset.tab !== "json";
+    $("#tab-inside").hidden = t.dataset.tab !== "inside";
   }));
 
   $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
@@ -438,6 +439,13 @@ function showJson(request, response, mode) {
   const path = mode === "separate" ? "/v1/systemone/separate" : "/v1/systemone";
   const json = JSON.stringify(request).replace(/'/g, "'\\''");
   $("#json-curl").textContent = `curl -s http://localhost:8008${path} \\\n  -H 'Content-Type: application/json' \\\n  -d '${json}'`;
+
+  // モデル入力タブ（順序チェックがあるときは通常の判定のレスポンスで計算を示す）
+  $("#inside-input").textContent = kev.modelInput(request);
+  const res = response && (response.systemone ?? response);
+  const done = res && res.answers;
+  $("#inside-raw").textContent = done ? kev.rawOutput(request, res) : "—（判定後に表示します）";
+  $("#inside-calc").textContent = done ? kev.explainAnswers(request, res) : "—（判定後に表示します）";
 }
 
 let toastTimer = 0;

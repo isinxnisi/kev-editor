@@ -92,6 +92,7 @@
       <div class="tabs" role="tablist">
         <button type="button" role="tab" class="tab" data-tab="view" aria-selected="true">結果</button>
         <button type="button" role="tab" class="tab" data-tab="json" aria-selected="false">JSON</button>
+        <button type="button" role="tab" class="tab" data-tab="inside" aria-selected="false">モデル入力</button>
         <span class="meta" id="meta"></span>
       </div>
       <div id="tab-view" class="tab-body">
@@ -113,6 +114,22 @@
         <div class="json-block">
           <div class="json-head"><span>curl で同じ判定</span><button type="button" class="link" data-copy="json-curl">コピー</button></div>
           <pre id="json-curl" class="code">—</pre>
+        </div>
+      </div>
+      <div id="tab-inside" class="tab-body" hidden>
+        <p class="inside-note">Kev にプロンプトはありません。リクエストの JSON は、次のトークン列に変換されてモデルに入ります。モデルは文章を生成せず、<code>&lt;decide&gt;</code> から各 <code>&lt;/opt&gt;</code> を指す確率だけを出します。</p>
+        <div class="json-block">
+          <div class="json-head"><span>① モデルへの入力（サーバーが JSON から作るトークン列）</span><button type="button" class="link" data-copy="inside-input">コピー</button></div>
+          <pre id="inside-input" class="code wrap">—</pre>
+        </div>
+        <div class="json-block">
+          <div class="json-head"><span>② モデルの生の出力（確率の配列だけ）</span></div>
+          <pre id="inside-raw" class="code">—</pre>
+          <p class="inside-note sub">API はこの配列をそのまま返さないので、レスポンスから並び順どおりに戻して表示しています（小数 4 桁に丸めた値）。</p>
+        </div>
+        <div class="json-block">
+          <div class="json-head"><span>③ サーバーのプログラムがレスポンスの JSON を組み立てる（kev/api.py の to_answers。モデルは関与しない）</span></div>
+          <pre id="inside-calc" class="code wrap">—</pre>
         </div>
       </div>
     </section>

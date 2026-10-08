@@ -307,6 +307,10 @@ kbd {
   margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--border);
   font: 12px/1.55 var(--mono); white-space: pre; overflow: auto; max-height: 360px;
 }
+.code.wrap { white-space: pre-wrap; word-break: break-word; }
+.inside-note { margin: 0 0 14px; font-size: 12px; color: var(--text-2); line-height: 1.6; }
+.inside-note code { font: 11px var(--mono); }
+.inside-note.sub { margin: 6px 0 0; font-size: 11px; color: var(--text-3); }
 
 .toast {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
