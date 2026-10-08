@@ -7,7 +7,8 @@ services:
       context: ./kev
     environment:
       KEV_RUN: ${KEV_RUN:-jaredpalmer/kev-0.8b}
-      KEV_DTYPE: ${KEV_DTYPE:-}
+      # CPU の既定（fp32）はメモリを約 2 倍使うため、bf16 を既定にする
+      KEV_DTYPE: ${KEV_DTYPE:-bf16}
       KEV_TEMPERATURE: ${KEV_TEMPERATURE:-}
       KEV_DATE_FACTS: ${KEV_DATE_FACTS:-0}
       KEV_TRUNCATE_STATES: ${KEV_TRUNCATE_STATES:-0}
@@ -23,6 +24,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15m
+    # メモリ不足で Docker 全体を巻き込まないよう上限を設ける（超えたらこのコンテナだけ停止する）
+    mem_limit: ${KEV_MEM_LIMIT:-3g}
     restart: unless-stopped
 
   # エディタ画面。静的ファイルの配信と、/kev/ → kev:8008 の中継だけを行う。

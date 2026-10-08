@@ -24,7 +24,7 @@ docker compose logs -f kev
 ### 必要なもの
 
 - Docker（Docker Compose v2）
-- メモリ: Kev コンテナで 4GB 程度（CPU では fp32 で動くため）。足りないときは `.env` で `KEV_DTYPE=bf16` を指定
+- メモリ: Kev コンテナで 3GB 程度（既定の bf16 の場合。上限は `KEV_MEM_LIMIT`）
 - ネットワーク: GitHub、PyPI、download.pytorch.org、Hugging Face に接続できること
 - GPU は不要（CPU で動きます）
 
