@@ -1,0 +1,41 @@
+name: kev-editor
+
+services:
+  # Kev 本体（判定 API サーバー）。CPU で動かす。
+  kev:
+    build:
+      context: ./kev
+    environment:
+      KEV_RUN: ${KEV_RUN:-jaredpalmer/kev-0.8b}
+      KEV_DTYPE: ${KEV_DTYPE:-}
+      KEV_TEMPERATURE: ${KEV_TEMPERATURE:-}
+      KEV_DATE_FACTS: ${KEV_DATE_FACTS:-0}
+      KEV_TRUNCATE_STATES: ${KEV_TRUNCATE_STATES:-0}
+    volumes:
+      # ダウンロードしたモデルを保持する（再起動のたびにダウンロードしない）
+      - kev-models:/models
+    ports:
+      # API を直接 curl で試せるように公開する
+      - "${KEV_PORT:-8008}:8008"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8008/v1/models', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15m
+    restart: unless-stopped
+
+  # エディタ画面。静的ファイルの配信と、/kev/ → kev:8008 の中継だけを行う。
+  web:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./web/public:/usr/share/nginx/html:ro
+      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - kev
+    restart: unless-stopped
+
+volumes:
+  kev-models:

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kev Editor</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M10 8v16M10 16l9-8M13 13l7 11' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">K</span>
+      <span class="brand-name">Kev Editor</span>
+    </div>
+    <div class="status" id="status" data-state="loading">
+      <span class="dot"></span><span id="status-text">接続中…</span>
+    </div>
+    <div class="topbar-right">
+      <label class="sample-picker">
+        <span>サンプル</span>
+        <select id="sample-select">
+          <option value="">選択…</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- 入力 -->
+    <section class="pane editor" aria-label="入力">
+      <div class="block">
+        <div class="block-head">
+          <h2>判断材料</h2>
+          <span class="hint" id="state-count">0 文字</span>
+        </div>
+        <textarea id="state" class="state-input" rows="9"
+          placeholder="判断の対象になる文章を入力します（問い合わせ本文、申請内容、レビューなど）"></textarea>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h2>質問</h2>
+          <span class="hint">1 回の判定でまとめて答えます</span>
+        </div>
+        <div id="questions" class="questions"></div>
+        <div class="add-question">
+          <span>質問を追加</span>
+          <button type="button" class="chip" data-add="noul">Yes / No</button>
+          <button type="button" class="chip" data-add="choice">選択</button>
+          <button type="button" class="chip" data-add="score">スコア</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="run" class="primary">
+          <span class="run-label">判定実行</span>
+          <kbd>Ctrl</kbd><kbd>Enter</kbd>
+        </button>
+        <button type="button" id="settings-toggle" class="ghost" aria-expanded="false" aria-controls="settings">
+          <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M11.5 1.8l.4 2.1c.6.2 1.1.5 1.6.9l2-.7 1.5 2.6-1.6 1.4c.1.6.1 1.2 0 1.8l1.6 1.4-1.5 2.6-2-.7c-.5.4-1 .7-1.6.9l-.4 2.1h-3l-.4-2.1c-.6-.2-1.1-.5-1.6-.9l-2 .7-1.5-2.6 1.6-1.4c-.1-.6-.1-1.2 0-1.8L3 6.7l1.5-2.6 2 .7c.5-.4 1-.7 1.6-.9l.4-2.1h3zM10 7a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          詳細設定
+        </button>
+      </div>
+
+      <div id="settings" class="settings" hidden>
+        <div class="setting">
+          <div class="setting-label">実行方法</div>
+          <div class="radio-row">
+            <label><input type="radio" name="mode" value="packed" checked> まとめて判定</label>
+            <label><input type="radio" name="mode" value="separate"> 質問ごとに判定</label>
+          </div>
+          <p class="setting-note">質問ごとに判定すると、他の質問の影響を受けない結果になります（質問数ぶん時間がかかります）。</p>
+        </div>
+        <div class="setting">
+          <div class="setting-label">選択肢の順序チェック</div>
+          <label class="inline">
+            <input type="checkbox" id="permute-on"> 選択の質問で、選択肢の並び順を変えて
+            <input type="number" id="permute-n" min="2" max="12" value="6" class="num"> 回判定する
+          </label>
+          <p class="setting-note">並び順だけで答えが変わらないかを確かめます。</p>
+        </div>
+        <div class="setting">
+          <div class="setting-label">表示</div>
+          <label class="inline"><input type="checkbox" id="show-prev" checked> 前回の判定との差を表示する</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 結果 -->
+    <section class="pane result" aria-label="結果">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" class="tab" data-tab="view" aria-selected="true">結果</button>
+        <button type="button" role="tab" class="tab" data-tab="json" aria-selected="false">JSON</button>
+        <span class="meta" id="meta"></span>
+      </div>
+      <div id="tab-view" class="tab-body">
+        <div id="result" class="result-body">
+          <div class="empty">
+            <p>判断材料と質問を入力して<br>「判定実行」を押してください。</p>
+          </div>
+        </div>
+      </div>
+      <div id="tab-json" class="tab-body" hidden>
+        <div class="json-block">
+          <div class="json-head"><span>リクエスト</span><button type="button" class="link" data-copy="json-req">コピー</button></div>
+          <pre id="json-req" class="code">—</pre>
+        </div>
+        <div class="json-block">
+          <div class="json-head"><span>レスポンス</span><button type="button" class="link" data-copy="json-res">コピー</button></div>
+          <pre id="json-res" class="code">—</pre>
+        </div>
+        <div class="json-block">
+          <div class="json-head"><span>curl で同じ判定</span><button type="button" class="link" data-copy="json-curl">コピー</button></div>
+          <pre id="json-curl" class="code">—</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <template id="tpl-question">
+    <article class="q">
+      <div class="q-head">
+        <div class="seg" role="radiogroup" aria-label="質問の型">
+          <button type="button" data-type="noul">Yes / No</button>
+          <button type="button" data-type="choice">選択</button>
+          <button type="button" data-type="score">スコア</button>
+        </div>
+        <input class="q-id" spellcheck="false" aria-label="質問ID" title="質問ID（結果の識別に使います）">
+        <button type="button" class="icon-btn q-remove" aria-label="この質問を削除" title="削除">×</button>
+      </div>
+      <input class="q-text" placeholder="質問文（例：至急の対応が必要か？）" aria-label="質問文">
+      <div class="q-criteria"></div>
+    </article>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
